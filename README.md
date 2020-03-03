@@ -4,9 +4,12 @@ Use Edge Impulse Remote Management to capture sensor data directly from your pho
 
 - [x] Connect to Remote Management endpoint
 - [x] Capture accelerometer data
+- [ ] Fix/determine accelerometer frequency
 - [ ] Capture audio
 - [x] Send sample to ingestion api
-- [ ] UI
+- [x] UI
+- [ ] Pretty UI
+- [ ] Reconnect WebSocket
 - [ ] On-device inferencing
 
 ---
