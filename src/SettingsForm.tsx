@@ -1,5 +1,6 @@
 import React from "react";
 import { EdgeImpulseSettings } from "./Models";
+import { getDeviceId } from "./utils";
 
 interface SettingsFormProps {
   updateSettings: (settings: EdgeImpulseSettings) => void;
@@ -13,8 +14,8 @@ export class SettingsForm extends React.Component<
     this.state = {
       apiKey: "",
       device: {
-        deviceId: "",
-        deviceType: "",
+        deviceId: getDeviceId(),
+        deviceType: "BROWSER_CLIENT",
         accelerometerInterval: 16
       }
     };
@@ -67,18 +68,7 @@ export class SettingsForm extends React.Component<
           />
         </label>
         <label>
-          Device Type
-          <input
-            type="text"
-            name="deviceType"
-            placeholder="e.g. Browser, Phone"
-            onChange={this.handleDeviceSettingsChange}
-            value={device.deviceType}
-            required
-          />
-        </label>
-        <label>
-          Device Type
+          Accelerometer interval (in ms)
           <input
             type="number"
             name="accelerometerInterval"

@@ -1,5 +1,17 @@
 import cbor from "cbor";
 import { Measurements } from "./Models";
+import { LS_DEVICE_ID_KEY } from "./constants";
+
+const getRandomString = (length: number) =>
+  Math.random()
+    .toString(36)
+    .substring(length);
+
+export const getDeviceId = () =>
+  localStorage.getItem(LS_DEVICE_ID_KEY) || `id_${getRandomString(5)}`;
+export const setDeviceId = (deviceId: string) => {
+  localStorage.setItem(LS_DEVICE_ID_KEY, deviceId);
+};
 
 export const readFile = (file: Blob) => {
   return new Promise((resolve, reject) => {
