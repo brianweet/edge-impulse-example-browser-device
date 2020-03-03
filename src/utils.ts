@@ -50,11 +50,11 @@ export const takeSample = (data: { length: number }) => {
     const intervalValues: number[] = [];
 
     const newSensorEvent = (event: DeviceMotionEvent) => {
-      if (event.acceleration) {
+      if (event.accelerationIncludingGravity) {
         const value = [
-          event.acceleration.x || 0,
-          event.acceleration.y || 0,
-          event.acceleration.z || 0
+          event.accelerationIncludingGravity.x || 0,
+          event.accelerationIncludingGravity.y || 0,
+          event.accelerationIncludingGravity.z || 0
         ];
         sampleValues.push(value);
         intervalValues.push(event.interval);
