@@ -16,7 +16,7 @@ export class SettingsForm extends React.Component<
       device: {
         deviceId: getDeviceId(),
         deviceType: "BROWSER_CLIENT",
-        accelerometerInterval: 10
+        accelerometerInterval: 16
       },
       error: ""
     };
