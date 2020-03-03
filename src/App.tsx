@@ -38,9 +38,12 @@ export class App extends React.Component<AppProps, AppState> {
         {settings === undefined ? (
           <SettingsForm updateSettings={this.updateSettings}></SettingsForm>
         ) : (
-          <RemoteManagementConnection
-            settings={settings}
-          ></RemoteManagementConnection>
+          <>
+            <h3>Device ID: {settings.device.deviceId}</h3>
+            <RemoteManagementConnection
+              settings={settings}
+            ></RemoteManagementConnection>
+          </>
         )}
       </div>
     );
