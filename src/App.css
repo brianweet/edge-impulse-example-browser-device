@@ -23,7 +23,7 @@
 }
 
 input[type=text], input[type=number] {
-  width: 80%;
+  max-width: 80%;
   margin: 2px 10% 2px 10%;
   padding: 10px;
   font-size: 16px;

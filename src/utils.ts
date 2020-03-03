@@ -62,11 +62,9 @@ export const takeSample = (data: { length: number }) => {
     };
 
     window.addEventListener("devicemotion", newSensorEvent);
-    // send samplestart
 
     window.setTimeout(() => {
       window.removeEventListener("devicemotion", newSensorEvent);
-      // send samplesuccess
       resolve({
         measurements: sampleValues,
         intervalValues
