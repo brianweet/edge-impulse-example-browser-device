@@ -1,6 +1,6 @@
 import React from "react";
 import { EdgeImpulseSettings } from "./Models";
-import { getDeviceId, getApiKey } from "./utils";
+import { getApiKey, getDeviceId } from "./settings";
 
 interface SettingsFormProps {
   updateSettings: (settings: EdgeImpulseSettings) => void;

@@ -4,7 +4,7 @@ import "./App.css";
 import { RemoteManagementConnection } from "./RemoteManagementConnection";
 import { EdgeImpulseSettings } from "./Models";
 import { SettingsForm } from "./SettingsForm";
-import { storeApiKey, storeDeviceId } from "./utils";
+import { storeApiKey, storeDeviceId } from "./settings";
 
 interface AppProps {}
 interface AppState {

@@ -10,9 +10,9 @@ import {
   sampleStarted
 } from "./messages";
 import { parseMessage, createSignature, takeSample } from "./utils";
-import { REMOTE_MANAGEMENT_ENDPOINT, INGESTION_API } from "./constants";
 import { EdgeImpulseSettings, SampleDetails } from "./Models";
 import { SampleRequestDetails } from "./SampleRequestDetails";
+import { getRemoteManagementEndpoint, getIngestionApi } from "./settings";
 
 interface RemoteManagementConnectionProps {
   settings: EdgeImpulseSettings;
@@ -28,7 +28,7 @@ export class RemoteManagementConnection extends React.Component<
   RemoteManagementConnectionProps,
   RemoteManagementConnectionState
 > {
-  socket = new WebSocket(REMOTE_MANAGEMENT_ENDPOINT);
+  socket = new WebSocket(getRemoteManagementEndpoint());
   socketHeartbeat = -1;
 
   constructor(props: RemoteManagementConnectionProps) {
@@ -141,7 +141,7 @@ export class RemoteManagementConnection extends React.Component<
       data.signature = await createSignature(details.hmacKey, data);
       this.sendMessage(sampleUploading);
       await axios({
-        url: INGESTION_API + details.path,
+        url: getIngestionApi() + details.path,
         method: "POST",
         headers: {
           "x-api-key": this.props.settings.apiKey,

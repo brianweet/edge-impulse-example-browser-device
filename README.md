@@ -12,6 +12,16 @@ Use Edge Impulse Remote Management to capture sensor data directly from your pho
 - [ ] Reconnect WebSocket
 - [ ] On-device inferencing
 
+## Endpoint
+
+https://edgeimpulse.z6.web.core.windows.net?apiKey=``your-api-key``&remoteManagement=``wss://remote-mgmt.edgeimpulse.com``&ingestionApi=``https://ingestion.edgeimpulse.com``
+
+Supported URL parameters:
+
+- [optional] ``apiKey``
+- [optional] ``remoteManagement``
+- [optional] ``ingestionApi``
+
 ---
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

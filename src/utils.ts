@@ -1,25 +1,5 @@
 import cbor from "cbor";
 import { Measurements, Sample } from "./Models";
-import { LS_DEVICE_ID_KEY, LS_API_KEY } from "./constants";
-
-const getRandomString = (length: number) =>
-  Math.random()
-    .toString(36)
-    .substring(length);
-
-export const getApiKey = () =>
-  new URLSearchParams(window.location.search).get("apiKey") ||
-  localStorage.getItem(LS_API_KEY) ||
-  "";
-export const storeApiKey = (deviceId: string) => {
-  localStorage.setItem(LS_API_KEY, deviceId);
-};
-
-export const getDeviceId = () =>
-  localStorage.getItem(LS_DEVICE_ID_KEY) || `id_${getRandomString(5)}`;
-export const storeDeviceId = (deviceId: string) => {
-  localStorage.setItem(LS_DEVICE_ID_KEY, deviceId);
-};
 
 export const readFile = (file: Blob) => {
   return new Promise((resolve, reject) => {
