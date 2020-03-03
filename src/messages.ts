@@ -1,32 +1,13 @@
-import { DEVICE_ID, DEVICE_TYPE, INTERVAL_MS } from "./constants";
-
-export type Measurement = number[];
-export type Measurements = Measurement[];
-
-export type DataMessage = {
-  protected: {
-    ver: string;
-    alg: string;
-    iat: number;
-  };
-  signature: string;
-  payload: {
-    device_name: string;
-    device_type: string;
-    interval_ms: number;
-    sensors: {
-      name: string;
-      units: string;
-    }[];
-    values: Measurements;
-  };
-};
+import { EdgeImpulseSettings, Measurements } from "./Models";
 
 const emptySignature = Array(64)
   .fill("0")
   .join("");
 
-export const dataMessage = (measurements: Measurements): DataMessage => {
+export const dataMessage = (
+  settings: EdgeImpulseSettings,
+  measurements: Measurements
+) => {
   return {
     protected: {
       ver: "v1",
@@ -35,9 +16,9 @@ export const dataMessage = (measurements: Measurements): DataMessage => {
     },
     signature: emptySignature,
     payload: {
-      device_name: DEVICE_ID, // eslint-disable-line @typescript-eslint/camelcase
-      device_type: DEVICE_TYPE, // eslint-disable-line @typescript-eslint/camelcase
-      interval_ms: INTERVAL_MS, // eslint-disable-line @typescript-eslint/camelcase
+      device_name: settings.device.deviceId, // eslint-disable-line @typescript-eslint/camelcase
+      device_type: settings.device.deviceType, // eslint-disable-line @typescript-eslint/camelcase
+      interval_ms: settings.device.accelerometerInterval, // eslint-disable-line @typescript-eslint/camelcase
       sensors: [
         { name: "accX", units: "m/s2" },
         { name: "accY", units: "m/s2" },
@@ -48,13 +29,13 @@ export const dataMessage = (measurements: Measurements): DataMessage => {
   };
 };
 
-export const helloMessage = (apiKey: string) => {
+export const helloMessage = (settings: EdgeImpulseSettings) => {
   return {
     hello: {
       version: 2,
-      apiKey: apiKey,
-      deviceId: DEVICE_ID,
-      deviceType: DEVICE_TYPE,
+      apiKey: settings.apiKey,
+      deviceId: settings.device.deviceId,
+      deviceType: settings.device.deviceType,
       connection: "ip",
       sensors: [
         {
