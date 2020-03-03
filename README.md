@@ -14,7 +14,7 @@ Use Edge Impulse Remote Management to capture sensor data directly from your pho
 
 ## Endpoint
 
-https://edgeimpulse.z6.web.core.windows.net?apiKey=``your-api-key``&remoteManagement=``wss://remote-mgmt.edgeimpulse.com``&ingestionApi=``https://ingestion.edgeimpulse.com``
+https://edgeimpulse.z6.web.core.windows.net
 
 Supported URL parameters:
 
