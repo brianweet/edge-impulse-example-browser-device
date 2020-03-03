@@ -57,6 +57,9 @@ export const sampleRequestFailed = (error: string) => {
     error: error
   };
 };
+export const sampleStarted = {
+  sampleStarted: true
+};
 export const sampleProcessing = {
   sampleProcessing: true
 };

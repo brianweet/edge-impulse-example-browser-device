@@ -1,13 +1,13 @@
 import React from "react";
 import axios from "axios";
 import {
-  sampleProcessing,
   sampleRequestReceived,
   sampleFinished,
   sampleUploading,
   dataMessage,
   helloMessage,
-  sampleRequestFailed
+  sampleRequestFailed,
+  sampleStarted
 } from "./messages";
 import { parseMessage, createSignature, takeSample } from "./utils";
 import { REMOTE_MANAGEMENT_ENDPOINT, INGESTION_API } from "./constants";
@@ -58,6 +58,7 @@ export class RemoteManagementConnection extends React.Component<
       if (!data) {
         return;
       }
+
       if (data["hello"] !== undefined) {
         const msg = data["hello"];
         this.setState({
@@ -65,24 +66,28 @@ export class RemoteManagementConnection extends React.Component<
           error: msg.error
         });
       }
+
       if (data["sample"] !== undefined) {
-        this.sendMessage(sampleRequestReceived);
         const msg = data["sample"] as SampleDetails;
         if (!msg || !msg.hmacKey) {
           this.sendMessage(sampleRequestFailed("Message or hmacKey empty"));
           return;
         }
+
+        this.sendMessage(sampleRequestReceived);
+
+        // Start to sample
         this.setState({
           sample: msg,
           isSampling: true
         });
-        this.sendMessage(sampleProcessing);
-
-        // Start to sample
+        this.sendMessage(sampleStarted);
         const sampleDetails = { ...msg };
         const sampleData = await takeSample({
           length: msg.length
         });
+
+        // Upload sample
         if (sampleData.length <= 0) {
           this.sendMessage(
             sampleRequestFailed("Was not able to capture any measurements")
