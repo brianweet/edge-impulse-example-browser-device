@@ -88,14 +88,14 @@ export class RemoteManagementConnection extends React.Component<
         });
 
         // Upload sample
-        if (sampleData.length <= 0) {
+        if (sampleData.measurements.length <= 0) {
           this.sendMessage(
             sampleRequestFailed("Was not able to capture any measurements")
           );
         } else {
           await this.uploadSample(
             sampleDetails,
-            dataMessage(this.props.settings, sampleData)
+            dataMessage(this.props.settings, sampleData.measurements)
           );
           this.setState({
             sample: msg,

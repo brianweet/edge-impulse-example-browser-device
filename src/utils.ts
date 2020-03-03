@@ -45,7 +45,7 @@ export const parseMessage = async (event: MessageEvent) => {
 };
 
 export const takeSample = (data: { length: number }) => {
-  return new Promise<Measurements>((resolve, _reject) => {
+  return new Promise<Sample>((resolve, _reject) => {
     const sampleValues: Measurements = [];
     const intervalValues: number[] = [];
 
@@ -67,7 +67,10 @@ export const takeSample = (data: { length: number }) => {
     window.setTimeout(() => {
       window.removeEventListener("devicemotion", newSensorEvent);
       // send samplesuccess
-      resolve(sampleValues);
+      resolve({
+        measurements: sampleValues,
+        intervalValues
+      });
     }, data.length);
   });
 };
