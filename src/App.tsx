@@ -4,6 +4,7 @@ import "./App.css";
 import { RemoteManagementConnection } from "./RemoteManagementConnection";
 import { EdgeImpulseSettings } from "./Models";
 import { SettingsForm } from "./SettingsForm";
+import { storeApiKey, storeDeviceId } from "./utils";
 
 interface AppProps {}
 interface AppState {
@@ -19,6 +20,9 @@ export class App extends React.Component<AppProps, AppState> {
   }
 
   updateSettings = (settings: EdgeImpulseSettings) => {
+    storeApiKey(settings.apiKey);
+    storeDeviceId(settings.device.deviceId);
+
     this.setState({
       settings: settings
     });

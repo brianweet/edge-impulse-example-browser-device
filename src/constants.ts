@@ -1,3 +1,4 @@
 export const REMOTE_MANAGEMENT_ENDPOINT = "wss://remote-mgmt.edgeimpulse.com";
 export const INGESTION_API = "https://ingestion.edgeimpulse.com";
+export const LS_API_KEY = "apiKey";
 export const LS_DEVICE_ID_KEY = "deviceId";
