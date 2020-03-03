@@ -29,6 +29,7 @@ export class RemoteManagementConnection extends React.Component<
   RemoteManagementConnectionState
 > {
   socket = new WebSocket(REMOTE_MANAGEMENT_ENDPOINT);
+  socketHeartbeat = -1;
 
   constructor(props: RemoteManagementConnectionProps) {
     super(props);
@@ -47,6 +48,9 @@ export class RemoteManagementConnection extends React.Component<
         socketConnected: true
       });
       this.sendMessage(helloMessage(this.props.settings));
+      this.socketHeartbeat = window.setInterval(() => {
+        this.socket.send("ping");
+      }, 3000);
     };
 
     this.socket.onmessage = async event => {
@@ -97,6 +101,7 @@ export class RemoteManagementConnection extends React.Component<
     };
 
     this.socket.onclose = event => {
+      clearInterval(this.socketHeartbeat);
       const msg = event.wasClean
         ? `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
         : // e.g. server process killed or network down
