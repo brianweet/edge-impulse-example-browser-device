@@ -5,7 +5,7 @@
         "module": "amd",
         "moduleResolution": "node",
         "esModuleInterop": true,
-        "outFile": "../build/client/bundle.js",
+        "outFile": "../public/build/client/bundle.js",
         "strict": true,
         "sourceMap": true,
         "lib": [ "dom", "dom.iterable", "es2017" ],

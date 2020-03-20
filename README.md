@@ -21,6 +21,7 @@ To build:
 1. Run a web server:
 
     ```
+    $ cd public
     $ python -m SimpleHTTPServer
     ```
 
