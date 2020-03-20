@@ -7,7 +7,7 @@ declare var CBOR: { encode(obj: { }): string; decode(a: string | ArrayBuffer): {
 
 export const readFile = (file: Blob) => {
     return new Promise((resolve, reject) => {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = () => {
             if (reader.result instanceof ArrayBuffer) {
                 resolve(CBOR.decode(reader.result));
@@ -66,7 +66,7 @@ export const createSignature = async (
     }
 ) => {
     // encoder to convert string to Uint8Array
-    let enc = new TextEncoder();
+    const enc = new TextEncoder();
     const key = await crypto.subtle.importKey(
         'raw', // raw format of the key - should be Uint8Array
         enc.encode(hmacKey), {
@@ -86,7 +86,7 @@ export const createSignature = async (
         enc.encode(JSON.stringify(data))
     );
     // Convert back to Hex
-    let b = new Uint8Array(signature);
+    const b = new Uint8Array(signature);
     return Array.prototype.map
         .call(b, x => ('00' + x.toString(16)).slice(-2))
         .join('');

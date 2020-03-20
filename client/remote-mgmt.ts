@@ -175,7 +175,7 @@ export class RemoteManagementConnection extends Emitter<{
                     "x-file-name": details.label,
                     "Content-Type": "application/json"
                 },
-                data: data
+                data
             });
             this.sendMessage(sampleFinished);
 

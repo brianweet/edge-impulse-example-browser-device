@@ -64,7 +64,7 @@ export const sampleRequestReceived = {
 export const sampleRequestFailed = (error: string) => {
     return {
         sample: false,
-        error: error
+        error
     };
 };
 

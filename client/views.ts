@@ -3,20 +3,20 @@ import { RemoteManagementConnection } from "./remote-mgmt";
 
 export class ClientViews {
     private _views: { [k: string]: HTMLElement } = {
-        loading: <HTMLElement>document.querySelector('#loading-view'),
-        qrcode: <HTMLElement>document.querySelector('#qrcode-view'),
-        connecting: <HTMLElement>document.querySelector('#remote-mgmt-connecting'),
-        connected: <HTMLElement>document.querySelector('#remote-mgmt-connected'),
-        connectionFailed: <HTMLElement>document.querySelector('#remote-mgmt-failed'),
-        sampling: <HTMLElement>document.querySelector('#sampling-in-progress')
+        loading: document.querySelector('#loading-view') as HTMLElement,
+        qrcode: document.querySelector('#qrcode-view') as HTMLElement,
+        connecting: document.querySelector('#remote-mgmt-connecting') as HTMLElement,
+        connected: document.querySelector('#remote-mgmt-connected') as HTMLElement,
+        connectionFailed: document.querySelector('#remote-mgmt-failed') as HTMLElement,
+        sampling: document.querySelector('#sampling-in-progress') as HTMLElement
     };
 
     private _elements = {
-        deviceId: <HTMLElement>document.querySelector('#connected-device-id'),
-        connectionFailedMessage: <HTMLElement>document.querySelector('#connection-failed-message'),
-        samplingTimeLeft: <HTMLElement>document.querySelector('#sampling-time-left'),
-        samplingRecordingStatus: <HTMLElement>document.querySelector('#sampling-recording-data-message'),
-        samplingRecordingSensor: <HTMLElement>document.querySelector('#sampling-recording-sensor')
+        deviceId: document.querySelector('#connected-device-id') as HTMLElement,
+        connectionFailedMessage: document.querySelector('#connection-failed-message') as HTMLElement,
+        samplingTimeLeft: document.querySelector('#sampling-time-left') as HTMLElement,
+        samplingRecordingStatus: document.querySelector('#sampling-recording-data-message') as HTMLElement,
+        samplingRecordingSensor: document.querySelector('#sampling-recording-sensor') as HTMLElement
     };
 
     constructor() {
@@ -25,7 +25,7 @@ export class ClientViews {
         if (getApiKey()) {
             this.switchView(this._views.connecting);
 
-            let connection = new RemoteManagementConnection({
+            const connection = new RemoteManagementConnection({
                 apiKey: getApiKey(),
                 device: {
                     deviceId: getDeviceId(),
@@ -86,7 +86,7 @@ export class ClientViews {
     }
 
     private switchView(view: HTMLElement) {
-        for (let k of Object.keys(this._views)) {
+        for (const k of Object.keys(this._views)) {
             this._views[k].style.display = 'none';
         }
         view.style.display = '';
