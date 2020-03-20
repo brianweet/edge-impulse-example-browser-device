@@ -1,4 +1,4 @@
-import { getApiKey, getHmacKey, getDeviceId, storeApiKey, storeHmacKey, storeDeviceId } from "./settings";
+import { getApiKey, getDeviceId, storeApiKey, storeDeviceId } from "./settings";
 import { RemoteManagementConnection } from "./remote-mgmt";
 
 export class ClientViews {

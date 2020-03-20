@@ -48,7 +48,6 @@ export class RemoteManagementConnection extends Emitter<{
         this._socket.onopen = _e => {
             this._state.socketConnected = true;
             this.sendMessage(helloMessage(this._settings));
-            this._firstMessageSinceHello = true;
             this._socketHeartbeat = window.setInterval(() => {
                 this._socket.send("ping");
             }, 3000);
