@@ -1,0 +1,10 @@
+{
+    "extends": "../../tslint.json",
+    "linterOptions": {
+        "exclude": [
+            "**/*.js",
+            "typed-event-emitter.ts",
+            "./api-definition/**"
+        ]
+    }
+}
