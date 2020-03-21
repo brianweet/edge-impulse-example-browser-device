@@ -50,7 +50,7 @@ export class ClassificationClientViews {
 
             // tslint:disable-next-line: no-floating-promises
             (async () => {
-                let loader = new ClassificationLoader('https://2802e2f5.ngrok.io', getApiKey());
+                let loader = new ClassificationLoader('https://studio.edgeimpulse.com', getApiKey());
                 loader.on('status', msg => {
                     this._elements.loadingText.textContent = msg;
                 });
