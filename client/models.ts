@@ -16,8 +16,9 @@ export interface DeviceSettings {
 export type Measurement = number[];
 export type Measurements = Measurement[];
 export type Sample = {
-    measurements: Measurements,
-    intervalValues: number[]
+    values: number[][] | number[];
+    intervalMs: number;
+    sensors: { name: string, units: string }[];
 }
 
 export interface SampleDetails {

@@ -1,4 +1,5 @@
 import { ISensor } from "./isensor";
+import { Sample } from "../models";
 
 export class AccelerometerSensor implements ISensor {
     private _permissionGranted = false;
@@ -44,4 +45,75 @@ export class AccelerometerSensor implements ISensor {
             frequencies: [ 62.5 ]
         };
     }
+
+    takeSample(length: number, frequency: number, processing: () => void) {
+        return new Promise<Sample>((resolve, _reject) => {
+            let currentSample: { x: number, y: number, z: number } | undefined;
+            let sampleValues: number[][] = [];
+
+            let firstEvent = true;
+            let iv: number | undefined;
+
+            // check if we have any data in the first second...
+            const checkSensorTimeout = window.setTimeout(() => {
+                if (sampleValues.length === 0) {
+                    clearInterval(iv);
+                    return _reject('Was not able to capture any measurements from this device. ' +
+                        'This is probably a permission issue on the mobile client.');
+                }
+            }, 1000);
+
+            const newSensorEvent = (event: DeviceMotionEvent) => {
+                if (event.accelerationIncludingGravity) {
+                    if (firstEvent) {
+                        firstEvent = false;
+
+                        console.log('setting interval', 1000 / frequency, 'length', length);
+                        iv = setInterval(() => {
+                            if (currentSample) {
+                                sampleValues.push([
+                                    currentSample.x,
+                                    currentSample.y,
+                                    currentSample.z
+                                ]);
+                            }
+                        }, 1000 / frequency);
+
+                        setTimeout(() => {
+                            clearTimeout(checkSensorTimeout);
+                            clearInterval(iv);
+
+                            window.removeEventListener('devicemotion', newSensorEvent);
+                            console.log('done', sampleValues.length, 'samples');
+                            resolve({
+                                values: sampleValues,
+                                intervalMs: 1000 / frequency,
+                                sensors: [{
+                                        name: "accX",
+                                        units: "m/s2"
+                                    },
+                                    {
+                                        name: "accY",
+                                        units: "m/s2"
+                                    },
+                                    {
+                                        name: "accZ",
+                                        units: "m/s2"
+                                    }
+                                ],
+                            });
+                        }, length);
+                    }
+
+                    currentSample = {
+                        x: event.accelerationIncludingGravity.x || 0,
+                        y: event.accelerationIncludingGravity.y || 0,
+                        z: event.accelerationIncludingGravity.z || 0
+                    };
+                }
+            };
+
+            window.addEventListener('devicemotion', newSensorEvent);
+        });
+    };
 }

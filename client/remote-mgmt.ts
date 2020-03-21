@@ -2,11 +2,12 @@ import {
     sampleRequestReceived, sampleFinished, sampleUploading, dataMessage,
     helloMessage, sampleRequestFailed, sampleStarted
 } from "./messages";
-import { parseMessage, createSignature, takeSample } from "./utils";
+import { parseMessage, createSignature } from "./utils";
 import { EdgeImpulseSettings, SampleDetails } from "./models";
 import { getRemoteManagementEndpoint, getIngestionApi } from "./settings";
 import { AxiosStatic } from '../node_modules/axios';
 import { Emitter } from "./typed-event-emitter";
+import { ISensor } from "./sensors/isensor";
 
 declare var axios: AxiosStatic;
 
@@ -24,6 +25,7 @@ export class RemoteManagementConnection extends Emitter<{
     samplingStarted: [number],
     samplingUploading: [],
     samplingFinished: [],
+    samplingProcessing: [],
     samplingError: [string]
 }> {
     private _socket: WebSocket;
@@ -31,7 +33,7 @@ export class RemoteManagementConnection extends Emitter<{
     private _state: RemoteManagementConnectionState;
     private _settings: EdgeImpulseSettings;
 
-    constructor(settings: EdgeImpulseSettings, waitForSamplingToStart: (sensorName: string) => Promise<void>) {
+    constructor(settings: EdgeImpulseSettings, waitForSamplingToStart: (sensorName: string) => Promise<ISensor>) {
         super();
 
         this._socket = new WebSocket(getRemoteManagementEndpoint());
@@ -85,7 +87,7 @@ export class RemoteManagementConnection extends Emitter<{
                 try {
                     this.sendMessage(sampleRequestReceived);
 
-                    await waitForSamplingToStart(msg.sensor);
+                    let sensor = await waitForSamplingToStart(msg.sensor);
 
                     // Start to sample
                     this._state.sample = msg;
@@ -97,14 +99,14 @@ export class RemoteManagementConnection extends Emitter<{
 
                     this.emit('samplingStarted', msg.length);
 
-                    const sampleData = await takeSample({
-                        length: msg.length
+                    const sampleData = await sensor.takeSample(msg.length, 1000 / msg.interval, () => {
+                        this.emit('samplingProcessing');
                     });
 
                     // Upload sample
                     await this.uploadSample(
                         sampleDetails,
-                        dataMessage(this._settings, sampleData.measurements)
+                        dataMessage(this._settings, sampleData)
                     );
                     this._state.sample = msg;
                     this._state.isSampling = false;
@@ -149,6 +151,8 @@ export class RemoteManagementConnection extends Emitter<{
     ) {
         try {
             this.emit('samplingUploading');
+
+            console.log('uploading sample', data);
 
             // Sign it please
             data.signature = await createSignature(details.hmacKey, data);

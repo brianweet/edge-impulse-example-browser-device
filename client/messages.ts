@@ -1,6 +1,7 @@
 import {
     EdgeImpulseSettings,
-    Measurements
+    Measurements,
+    Sample
 } from "./models";
 
 const emptySignature = Array(64)
@@ -9,7 +10,7 @@ const emptySignature = Array(64)
 
 export const dataMessage = (
     settings: EdgeImpulseSettings,
-    measurements: Measurements
+    sample: Sample
 ) => {
     return {
         protected: {
@@ -21,21 +22,9 @@ export const dataMessage = (
         payload: {
             device_name: settings.device.deviceId,
             device_type: settings.device.deviceType,
-            interval_ms: 16,
-            sensors: [{
-                    name: "accX",
-                    units: "m/s2"
-                },
-                {
-                    name: "accY",
-                    units: "m/s2"
-                },
-                {
-                    name: "accZ",
-                    units: "m/s2"
-                }
-            ],
-            values: measurements
+            interval_ms: sample.intervalMs,
+            sensors: sample.sensors,
+            values: sample.values
         }
     };
 };
