@@ -12,7 +12,7 @@ export class AccelerometerSensor implements ISensor {
         return typeof DeviceMotionEvent !== 'undefined';
     }
 
-    checkPermissions(): Promise<boolean> {
+    checkPermissions(fromClick: boolean): Promise<boolean> {
         if (!this.hasSensor()) {
             throw new Error('Accelerometer not present on this device');
         }
@@ -86,7 +86,7 @@ export class AccelerometerSensor implements ISensor {
                             window.removeEventListener('devicemotion', newSensorEvent);
                             console.log('done', sampleValues.length, 'samples');
                             resolve({
-                                values: sampleValues,
+                                values: sampleValues.slice(0, Math.floor(length / (1000 / frequency))),
                                 intervalMs: 1000 / frequency,
                                 sensors: [{
                                         name: "accX",
@@ -102,7 +102,7 @@ export class AccelerometerSensor implements ISensor {
                                     }
                                 ],
                             });
-                        }, length);
+                        }, length + 200);
                     }
 
                     currentSample = {

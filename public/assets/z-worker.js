@@ -4,6 +4,7 @@
 
 	if (global.zWorkerInitialized)
 		throw new Error('z-worker.js should be run only once');
+
 	global.zWorkerInitialized = true;
 
 	addEventListener("message", function(event) {
@@ -94,7 +95,7 @@
 		}
 		if (!isAppend && (task.crcInput || task.crcOutput))
 			rmsg.crc = task.crc.get();
-		
+
 		// posting a message with transferables will fail on IE10
 		try {
 			postMessage(rmsg, transferables);

@@ -39,7 +39,7 @@
 	var ERR_READ_DATA = "Error while reading file data.";
 	var ERR_DUPLICATED_NAME = "File already exists.";
 	var CHUNK_SIZE = 512 * 1024;
-	
+
 	var TEXT_PLAIN = "text/plain";
 
 	var appendABViewSupported;
@@ -73,7 +73,7 @@
 		}
 		return table;
 	})();
-	
+
 	// "no-op" codec
 	function NOOP() {}
 	NOOP.prototype.append = function append(bytes, onprogress) {
@@ -296,7 +296,7 @@
 	BlobWriter.prototype = new Writer();
 	BlobWriter.prototype.constructor = BlobWriter;
 
-	/** 
+	/**
 	 * inflate/deflate core functions
 	 * @param worker {Worker} web worker for the task.
 	 * @param initialMessage {Object} initial message to be sent to the worker. should contain
@@ -368,7 +368,7 @@
 					var msg = index === 0 ? initialMessage : {sn : sn};
 					msg.type = 'append';
 					msg.data = array;
-					
+
 					// posting a message with transferables will fail on IE10
 					try {
 						worker.postMessage(msg, [array.buffer]);
@@ -870,8 +870,8 @@
 	}
 
 	var DEFAULT_WORKER_SCRIPTS = {
-		deflater: ['z-worker.js', 'deflate.js'],
-		inflater: ['z-worker.js', 'inflate.js']
+		deflater: ['/assets/z-worker.js', '/assets/deflate.js'],
+		inflater: ['/assets/z-worker.js', '/assets/inflate.js']
 	};
 	function createWorker(type, callback, onerror) {
 		if (obj.zip.workerScripts !== null && obj.zip.workerScriptsPath !== null) {

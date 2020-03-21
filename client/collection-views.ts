@@ -4,7 +4,7 @@ import { ISensor } from "./sensors/isensor";
 import { AccelerometerSensor } from "./sensors/accelerometer";
 import { MicrophoneSensor } from "./sensors/microphone";
 
-export class ClientViews {
+export class DataCollectionClientViews {
     private _views = {
         loading: document.querySelector('#loading-view') as HTMLElement,
         qrcode: document.querySelector('#qrcode-view') as HTMLElement,
@@ -22,8 +22,6 @@ export class ClientViews {
         samplingRecordingSensor: document.querySelector('#sampling-recording-sensor') as HTMLElement,
         grantPermissionsBtn: document.querySelector('#grant-permissions-button') as HTMLElement,
         loadingText: document.querySelector('#loading-view-text') as HTMLElement,
-        inferencingRegion: document.querySelector('#inferencing-region') as HTMLElement,
-        switchToInferencing: document.querySelector('#inferencing-button') as HTMLElement
     };
 
     private _sensors: ISensor[] = [];
@@ -64,8 +62,6 @@ export class ClientViews {
             }, this.beforeSampling.bind(this));
 
             connection.on('connected', () => {
-                this._elements.inferencingRegion.style.display = 'block';
-
                 // persist keys now...
                 storeApiKey(getApiKey());
 
@@ -73,8 +69,6 @@ export class ClientViews {
                 this.switchView(this._views.connected);
             });
             connection.on('error', err => {
-                this._elements.inferencingRegion.style.display = 'block';
-
                 this._elements.connectionFailedMessage.textContent = err;
                 this.switchView(this._views.connectionFailed);
             });
@@ -118,8 +112,6 @@ export class ClientViews {
         else {
             this.switchView(this._views.qrcode);
         }
-
-        // this._elements.switchToInferencing.onclick
     }
 
     private switchView(view: HTMLElement) {

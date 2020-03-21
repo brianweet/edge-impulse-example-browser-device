@@ -34,7 +34,7 @@
                 <img src="/assets/mark.svg">
             </div>
             <div class="col align-middle">
-                <h1 class="text-dark mb-0 border-left pl-4">Data collection</h1>
+                <h1 class="text-dark mb-0 border-left pl-4">Classifier</h1>
             </div>
         </div>
         <div class="row mt-4" id="loading-view">
@@ -72,44 +72,6 @@
             </div>
         </div>
 
-        <div class="row mt-4" id="remote-mgmt-connecting" style="display: none">
-            <div class="col">
-                <div class="card shadow">
-                    <div class="card-body text-center card-icon mt-4">
-                        <div class="sk-folding-cube">
-                            <div class="sk-cube1 sk-cube"></div>
-                            <div class="sk-cube2 sk-cube"></div>
-                            <div class="sk-cube4 sk-cube"></div>
-                            <div class="sk-cube3 sk-cube"></div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>Connecting to Edge Impulse...</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mt-4" id="remote-mgmt-connected" style="display: none">
-            <div class="col">
-                <div class="card shadow">
-                    <div class="card-body text-center mt-4">
-                        <div class="col text-center">
-                            <i class="far fa-check-circle text-success" style="font-size: 10rem"></i>
-                        </div>
-                    </div>
-                    <div class="card-body text-center pb-0">
-                        <h2>Connected as <span id="connected-device-id"></span></h2>
-                    </div>
-                    <div class="card-body text-center pt-2 mb-2">
-                        You can collect data from this device from the
-                        <strong>Data acquisition</strong> page in
-                        the Edge Impulse studio.
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="row mt-4" id="remote-mgmt-failed" style="display: none">
             <div class="col">
                 <div class="card shadow">
@@ -119,7 +81,7 @@
                         </div>
                     </div>
                     <div class="card-body text-center pb-0">
-                        <h2>Not connected</h2>
+                        <h2>Failed to load</h2>
                     </div>
                     <div class="card-body text-center pt-2 mb-2" id="connection-failed-message">
                         Failed to authenticate.
@@ -128,26 +90,7 @@
             </div>
         </div>
 
-        <div class="row mt-4" id="sampling-in-progress" style="display: none">
-            <div class="col">
-                <div class="card shadow">
-                    <div class="card-body text-center mt-5">
-                        <div class="col text-center mb--4">
-                            <div class="sampling-circle"></div>
-                            <div class="sampling-seconds-left text-gray" id="sampling-time-left">27s</div>
-                        </div>
-                    </div>
-                    <div class="card-body text-center pb-0 pt-0">
-                        <h2 id="sampling-recording-data-message">Recording data</h2>
-                    </div>
-                    <div class="card-body text-center pt-2 mb-2">
-                        From <span id="sampling-recording-sensor">built-in microphone</span>...
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mt-4" id="permission-view" style="display: none;">
+        <div class="row mt-4" id="permission-view" style="display: none">
             <div class="col">
                 <div class="card shadow">
                     <div class="card-body text-center card-icon">
@@ -164,11 +107,30 @@
                 </div>
             </div>
         </div>
+
+        <div class="row mt-4" id="inferencing-in-progress" style="display: none">
+            <div class="col">
+                <div class="card shadow">
+                    <div class="card-body text-center mt-5">
+                        <div class="col text-center mb--4">
+                            <div class="sampling-circle"></div>
+                            <div class="sampling-seconds-left text-gray" id="inferencing-time-left">2s</div>
+                        </div>
+                    </div>
+                    <div class="card-body text-center pb-0 pt-0">
+                        <h2 id="inferencing-recording-data-message">Recording data</h2>
+                    </div>
+                    <div class="card-body text-center pt-2 mb-2 text-monospace text-sm text-gray" id="inferencing-result"
+                        style="white-space: pre-line">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row">
+    <div class="row" id="inferencing-region">
         <div class="col text-center mt-4">
-            <a class="btn btn-secondary" href="/classifier.html">Switch to classification mode</a>
+            <a class="btn btn-secondary" href="/">Switch to data collection mode</a>
         </div>
     </div>
 
@@ -187,7 +149,7 @@
     <script type="text/javascript" src="/assets/recorder.js"></script>
     <script type="text/javascript" src="/build/client/bundle.js"></script>
     <script>
-        require('client/init').default('data-collection');
+        require('client/init').default('classifier');
     </script>
 </body>
 </html>

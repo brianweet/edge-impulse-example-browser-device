@@ -409,3 +409,7 @@ body {
     bottom: -2rem;
     font-size: 5rem;
 }
+
+#inferencing-result {
+    white-space: pre;
+}

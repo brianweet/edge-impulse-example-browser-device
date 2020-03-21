@@ -33,7 +33,8 @@ export class RemoteManagementConnection extends Emitter<{
     private _state: RemoteManagementConnectionState;
     private _settings: EdgeImpulseSettings;
 
-    constructor(settings: EdgeImpulseSettings, waitForSamplingToStart: (sensorName: string) => Promise<ISensor>) {
+    constructor(settings: EdgeImpulseSettings,
+                waitForSamplingToStart?: (sensorName: string) => Promise<ISensor>) {
         super();
 
         this._socket = new WebSocket(getRemoteManagementEndpoint());
@@ -83,6 +84,8 @@ export class RemoteManagementConnection extends Emitter<{
                     this.sendMessage(sampleRequestFailed("Message or hmacKey empty"));
                     return;
                 }
+
+                if (!waitForSamplingToStart) return;
 
                 try {
                     this.sendMessage(sampleRequestReceived);
