@@ -1,14 +1,16 @@
 import { getApiKey, getDeviceId, storeApiKey, storeDeviceId } from "./settings";
 import { RemoteManagementConnection } from "./remote-mgmt";
+import { ISensor } from "./sensors/isensor";
+import { AccelerometerSensor } from "./sensors/accelerometer";
 
 export class ClientViews {
-    private _views: { [k: string]: HTMLElement } = {
+    private _views = {
         loading: document.querySelector('#loading-view') as HTMLElement,
         qrcode: document.querySelector('#qrcode-view') as HTMLElement,
-        connecting: document.querySelector('#remote-mgmt-connecting') as HTMLElement,
         connected: document.querySelector('#remote-mgmt-connected') as HTMLElement,
         connectionFailed: document.querySelector('#remote-mgmt-failed') as HTMLElement,
-        sampling: document.querySelector('#sampling-in-progress') as HTMLElement
+        sampling: document.querySelector('#sampling-in-progress') as HTMLElement,
+        permission: document.querySelector('#permission-view') as HTMLElement
     };
 
     private _elements = {
@@ -16,23 +18,42 @@ export class ClientViews {
         connectionFailedMessage: document.querySelector('#connection-failed-message') as HTMLElement,
         samplingTimeLeft: document.querySelector('#sampling-time-left') as HTMLElement,
         samplingRecordingStatus: document.querySelector('#sampling-recording-data-message') as HTMLElement,
-        samplingRecordingSensor: document.querySelector('#sampling-recording-sensor') as HTMLElement
+        samplingRecordingSensor: document.querySelector('#sampling-recording-sensor') as HTMLElement,
+        grantPermissionsBtn: document.querySelector('#grant-permissions-button') as HTMLElement,
+        loadingText: document.querySelector('#loading-view-text') as HTMLElement
     };
+
+    private _sensors: ISensor[] = [];
 
     constructor() {
         storeDeviceId(getDeviceId());
 
+        const accelerometer = new AccelerometerSensor();
+        if (accelerometer.hasSensor()) {
+            console.log('has accelerometer');
+            this._sensors.push(accelerometer);
+        }
+
         if (getApiKey()) {
-            this.switchView(this._views.connecting);
+            this.switchView(this._views.loading);
+            this._elements.loadingText.textContent = 'Connecting to Edge Impulse...';
 
             const connection = new RemoteManagementConnection({
                 apiKey: getApiKey(),
                 device: {
                     deviceId: getDeviceId(),
-                    accelerometerInterval: 62.5,
+                    sensors: this._sensors.map(s => {
+                        let p = s.getProperties();
+                        return {
+                            name: p.name,
+                            frequencies: p.frequencies,
+                            maxSampleLength: p.maxSampleLength
+                        }
+                    }),
                     deviceType: 'MOBILE_CLIENT'
                 }
-            });
+            }, this.beforeSampling.bind(this));
+
             connection.on('connected', () => {
                 // persist keys now...
                 storeApiKey(getApiKey());
@@ -47,14 +68,6 @@ export class ClientViews {
 
             let samplingInterval: number | undefined;
 
-            connection.on('samplingReceived', (length, sensor) => {
-                clearInterval(samplingInterval);
-
-                this.switchView(this._views.sampling);
-                this._elements.samplingRecordingStatus.textContent = 'Received sample request';
-                this._elements.samplingTimeLeft.textContent = 'Waiting...';
-                this._elements.samplingRecordingSensor.textContent = sensor;
-            });
             connection.on('samplingStarted', length => {
                 let remaining = length;
 
@@ -72,6 +85,9 @@ export class ClientViews {
             });
             connection.on('samplingUploading', () => {
                 clearInterval(samplingInterval);
+
+                this.switchView(this._views.loading);
+                this._elements.loadingText.textContent = 'Uploading...';
             });
             connection.on('samplingFinished', () => {
                 this.switchView(this._views.connected);
@@ -87,8 +103,55 @@ export class ClientViews {
 
     private switchView(view: HTMLElement) {
         for (const k of Object.keys(this._views)) {
-            this._views[k].style.display = 'none';
+            (<{ [k: string]: HTMLElement }>this._views)[k].style.display = 'none';
         }
         view.style.display = '';
+    }
+
+    private async beforeSampling(sensorName: string): Promise<void> {
+        let sensor = this._sensors.find(s => s.getProperties().name === sensorName);
+
+        if (!sensor) {
+            throw new Error('Cannot find sensor with name "' + sensorName + '"');
+        }
+
+        if (await sensor.checkPermissions()) {
+            this.switchView(this._views.sampling);
+            this._elements.samplingRecordingStatus.textContent = 'Starting in 2 seconds';
+            this._elements.samplingTimeLeft.textContent = 'Waiting...';
+            this._elements.samplingRecordingSensor.textContent = sensor.getProperties().name;
+            await this.sleep(2000);
+        }
+        else {
+            this.switchView(this._views.permission);
+            this._elements.grantPermissionsBtn.textContent =
+                'Give access to the ' + sensor.getProperties().name;
+
+            return new Promise((resolve, reject) => {
+                let permissionTimeout = setTimeout(() => {
+                    reject('User did not grant permissions within one minute');
+                }, 60 * 1000);
+
+                this._elements.grantPermissionsBtn.onclick = () => {
+                    if (!sensor) return reject('Sensor is missing');
+
+                    sensor.checkPermissions().then(result => {
+                        if (result) {
+                            this.switchView(this._views.sampling);
+                            resolve();
+                        }
+                        else {
+                            reject('User has rejected accelerometer permissions')
+                        }
+                    }).catch(reject);
+
+                    clearInterval(permissionTimeout);
+                }
+            });
+        }
+    }
+
+    private sleep(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 }

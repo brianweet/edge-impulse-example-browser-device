@@ -6,7 +6,11 @@ export interface EdgeImpulseSettings {
 export interface DeviceSettings {
     deviceId: string;
     deviceType: string;
-    accelerometerInterval: number;
+    sensors: {
+        name: string;
+        frequencies: number[];
+        maxSampleLength: number;
+    }[];
 }
 
 export type Measurement = number[];

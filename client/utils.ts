@@ -47,10 +47,20 @@ export const takeSample = (data: {
             }
         };
 
-        window.addEventListener("devicemotion", newSensorEvent);
+        window.addEventListener('devicemotion', newSensorEvent);
+
+        // check if we have any data in the first second...
+        const checkSensorTimeout = window.setTimeout(() => {
+            if (sampleValues.length === 0) {
+                return _reject('Was not able to capture any measurements from this device. ' +
+                    'This is probably a permission issue on the mobile client.');
+            }
+        }, 1000);
 
         window.setTimeout(() => {
-            window.removeEventListener("devicemotion", newSensorEvent);
+            clearTimeout(checkSensorTimeout);
+
+            window.removeEventListener('devicemotion', newSensorEvent);
             resolve({
                 measurements: sampleValues,
                 intervalValues

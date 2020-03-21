@@ -19,9 +19,9 @@ export const dataMessage = (
         },
         signature: emptySignature,
         payload: {
-            device_name: settings.device.deviceId, // eslint-disable-line @typescript-eslint/camelcase
-            device_type: settings.device.deviceType, // eslint-disable-line @typescript-eslint/camelcase
-            interval_ms: settings.device.accelerometerInterval, // eslint-disable-line @typescript-eslint/camelcase
+            device_name: settings.device.deviceId,
+            device_type: settings.device.deviceType,
+            interval_ms: 16,
             sensors: [{
                     name: "accX",
                     units: "m/s2"
@@ -48,11 +48,13 @@ export const helloMessage = (settings: EdgeImpulseSettings) => {
             deviceId: settings.device.deviceId,
             deviceType: settings.device.deviceType,
             connection: "ip",
-            sensors: [{
-                name: "Built-in accelerometer",
-                maxSampleLengthS: 300,
-                frequencies: [62.5]
-            }]
+            sensors: settings.device.sensors.map(s => {
+                return {
+                    name: s.name,
+                    maxSampleLengthS: s.maxSampleLength,
+                    frequencies: s.frequencies
+                }
+            })
         }
     };
 };

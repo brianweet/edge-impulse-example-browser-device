@@ -25,7 +25,13 @@ To build:
     $ python -m SimpleHTTPServer
     ```
 
-Go to http://localhost:8000 to see the client.
+1. You'll need to be connected over HTTPS to access sensors (at least on iPhone), use ngrok to open up your web browser to the world via:
+
+    ```
+    $ ngrok http 8000
+    ```
+
+Go to the HTTPS URL that ngrok printed to see the client.
 
 ## Todo
 
