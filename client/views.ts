@@ -3,7 +3,7 @@ import { RemoteManagementConnection } from "./remote-mgmt";
 
 export class ClientViews {
     private _views: { [k: string]: HTMLElement } = {
-        loading: document.querySelector('#loading-view') as HTMLElement,
+        loading: <HTMLElement>document.querySelector('#loading-view'),
         qrcode: document.querySelector('#qrcode-view') as HTMLElement,
         connecting: document.querySelector('#remote-mgmt-connecting') as HTMLElement,
         connected: document.querySelector('#remote-mgmt-connected') as HTMLElement,
