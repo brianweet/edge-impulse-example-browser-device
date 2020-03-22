@@ -1,15 +1,18 @@
-import {
-    Emitter
-} from "./typed-event-emitter";
+import { Emitter } from "./typed-event-emitter";
 import { EdgeImpulseClassifier } from "./classifier";
+import { AxiosStatic } from '../node_modules/axios';
 
-export class ClassificationLoader extends Emitter<{ status: [string]; }> {
+declare var axios: AxiosStatic;
+
+export class ClassificationLoader extends Emitter<{ status: [string]; buildProgress: [string | null]; }> {
     private _studioHost: string;
+    private _wsHost: string;
     private _apiKey: string;
 
     constructor(studioHostUrl: string, apiKey: string) {
         super();
         this._studioHost = studioHostUrl + '/v1/api';
+        this._wsHost = studioHostUrl.replace('http', 'ws');
         this._apiKey = apiKey;
     }
 
@@ -23,9 +26,26 @@ export class ClassificationLoader extends Emitter<{ status: [string]; }> {
 
         const projectId = project.id;
 
+        let blob: Blob;
         this.emit('status', 'Downloading deployment...');
 
-        const blob = await this.downloadDeployment(projectId);
+        try {
+            blob = await this.downloadDeployment(projectId);
+        }
+        catch (ex) {
+            let m = typeof ex === 'string' ? ex : (ex.message || ex.toString());
+            if (m.indexOf('No deployment yet') === -1) {
+                throw ex;
+            }
+
+            this.emit('status', 'Building project...');
+
+            await this.buildDeployment(projectId);
+
+            this.emit('status', 'Downloading deployment...');
+
+            blob = await this.downloadDeployment(projectId);
+        }
 
         console.log('blob', blob);
 
@@ -90,6 +110,136 @@ export class ClassificationLoader extends Emitter<{ status: [string]; }> {
             x.responseType = 'blob';
             x.setRequestHeader('x-api-key', this._apiKey);
             x.send();
+        });
+    }
+
+    private async buildDeployment(projectId: number) {
+        let ws = await this.getWebsocket(projectId);
+
+        let jobRes = await axios({
+            url: `${this._studioHost}/${projectId}/jobs/build-ondevice-model?type=wasm`,
+            method: "POST",
+            headers: {
+                "x-api-key": this._apiKey,
+                "Content-Type": "application/json"
+            },
+            data: {
+                engine: 'tflite'
+            }
+        });
+        if (jobRes.status !== 200) {
+            throw new Error('Failed to start deployment: ' + jobRes.status + ' - ' + jobRes.statusText);
+        }
+
+        let jobData: { success: true, id: number } | { success: false, error: string } = jobRes.data;
+        if (!jobData.success) {
+            throw new Error(jobData.error);
+        }
+
+        let jobId = jobData.id;
+        console.log('Created job with ID', jobId);
+
+        let allData: string[] = [];
+
+        let p = new Promise((resolve, reject) => {
+            ws.onmessage = (msg) => {
+                try {
+                    console.log('ws message', msg);
+                    let m = JSON.parse(msg.data.replace(/^[0-9]+/, ''));
+                    if (m[0] === 'job-data-' + jobId) {
+                        console.log('[WS] job data', m[1].data);
+                        allData.push(m[1].data);
+                        this.emit('buildProgress', m[1].data);
+                    }
+                    else if (m[0] === 'job-finished-' + jobId) {
+                        let success = m[1].success;
+                        console.log('[WS] job finished', success);
+                        this.emit('buildProgress', null);
+                        if (success) {
+                            resolve();
+                        }
+                        else {
+                            reject('Failed to build: ' + allData.join(''));
+                        }
+                    }
+                }
+                catch (ex) {
+                    console.log('[WS] Failed to parse', msg.data);
+                }
+            };
+
+            ws.onclose = () => {
+                reject('Websocket closed: ' + allData.join(''));
+            };
+
+            setTimeout(() => {
+                reject('Building did not succeed within 30 seconds: ' + allData.join(''));
+            }, 30000);
+        });
+
+        p.then(() => ws.close()).catch(() => ws.close());
+
+        return p;
+    }
+
+    private async getWebsocket(projectId: number): Promise<WebSocket> {
+        let tokenRes = await axios({
+            url: `${this._studioHost}/${projectId}/socket-token`,
+            method: "GET",
+            headers: {
+                "x-api-key": this._apiKey,
+                "Content-Type": "application/json"
+            }
+        });
+        if (tokenRes.status !== 200) {
+            throw new Error('Failed to acquire socket token: ' + tokenRes.status + ' - ' + tokenRes.statusText);
+        }
+
+        let tokenData: {
+            success: true,
+            token: {
+                socketToken: string,
+                expires: Date
+            }
+        } | { success: false, error: string } = tokenRes.data;
+
+        if (!tokenData.success) {
+            throw new Error(tokenData.error);
+        }
+
+        let ws = new WebSocket(this._wsHost + '/socket.io/?token=' +
+            tokenData.token.socketToken + '&EIO=3&transport=websocket');
+
+        return new Promise((resolve, reject) => {
+            ws.onopen = () => {
+                console.log('websocket is open');
+            };
+            ws.onclose = () => {
+                reject('websocket was closed');
+            };
+            ws.onerror = err => {
+                reject('websocket error: ' + err);
+            };
+            ws.onmessage = msg => {
+                try {
+                    let m = JSON.parse(msg.data.replace(/^[0-9]+/, ''));
+                    if (m[0] === 'hello') {
+                        if (m[1].hello && m[1].hello.version === 1) {
+                            resolve(ws);
+                        }
+                        else {
+                            reject(JSON.stringify(m[1]));
+                        }
+                    }
+                }
+                catch (ex) {
+                    console.log('Failed to parse', msg.data);
+                }
+            };
+
+            setTimeout(() => {
+                reject('Did not authenticate with the websocket API within 10 seconds');
+            }, 10000);
         });
     }
 
@@ -160,6 +310,12 @@ export class ClassificationLoader extends Emitter<{ status: [string]; }> {
                 resolve((text || '').toString());
             });
             reader.readAsText(blob, 'ascii');
+        });
+    }
+
+    private async sleep(ms: number) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, ms);
         });
     }
 }
