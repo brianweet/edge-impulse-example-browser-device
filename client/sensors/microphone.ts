@@ -32,23 +32,28 @@ export class MicrophoneSensor implements ISensor {
         return typeof window.AudioContext !== 'undefined' || typeof (<any>window).webkitAudioContext !== 'undefined';
     }
 
-    checkPermissions(fromButton: boolean): Promise<boolean> {
+    async checkPermissions(fromButton: boolean) {
         if (!this.hasSensor()) {
             throw new Error('Accelerometer not present on this device');
         }
 
         if (this._recorder) {
-            return Promise.resolve(true);
+            return true;
         }
 
         if (!fromButton) {
-            return Promise.resolve(false);
+            return false;
         }
 
-        return navigator.mediaDevices.getUserMedia(this._constraints).then(stream => {
-            this._stream = stream;
-            return Promise.resolve(true);
-        });
+        if (this._audioContext?.state === "suspended") {
+            // Resume after user interaction
+            // https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
+            await this._audioContext.resume();
+        }
+
+        this._stream = await navigator.mediaDevices.getUserMedia(this._constraints);
+
+        return true;
     }
 
     getProperties() {
