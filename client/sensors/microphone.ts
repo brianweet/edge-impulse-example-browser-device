@@ -2,9 +2,12 @@ import { ISensor } from "./isensor";
 import { Sample } from "../models";
 
 declare class Recorder {
-    constructor(mediaStream: MediaStreamAudioSourceNode, options: {
-        numChannels: number;
-    });
+    constructor(
+        mediaStream: MediaStreamAudioSourceNode,
+        options: {
+            numChannels: number;
+        }
+    );
 
     record(): void;
     recording: boolean;
