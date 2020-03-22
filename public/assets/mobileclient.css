@@ -198,6 +198,14 @@
     /* Legacy iOS */
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+}
+
 #header-row {
     background-color: white;
 }
@@ -390,4 +398,18 @@ body {
     transform: translateY(-120px);
     font-weight: 300;
     font-size: 1.8rem;
+}
+
+#permission-view .fa-mobile {
+    position: relative;
+}
+#permission-view .fa-mobile > i {
+    position: absolute;
+    right: -2rem;
+    bottom: -2rem;
+    font-size: 5rem;
+}
+
+#inferencing-result {
+    white-space: pre;
 }

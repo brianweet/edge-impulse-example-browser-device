@@ -1,6 +1,7 @@
 import {
     EdgeImpulseSettings,
-    Measurements
+    Measurements,
+    Sample
 } from "./models";
 
 const emptySignature = Array(64)
@@ -9,7 +10,7 @@ const emptySignature = Array(64)
 
 export const dataMessage = (
     settings: EdgeImpulseSettings,
-    measurements: Measurements
+    sample: Sample
 ) => {
     return {
         protected: {
@@ -19,23 +20,11 @@ export const dataMessage = (
         },
         signature: emptySignature,
         payload: {
-            device_name: settings.device.deviceId, // eslint-disable-line @typescript-eslint/camelcase
-            device_type: settings.device.deviceType, // eslint-disable-line @typescript-eslint/camelcase
-            interval_ms: settings.device.accelerometerInterval, // eslint-disable-line @typescript-eslint/camelcase
-            sensors: [{
-                    name: "accX",
-                    units: "m/s2"
-                },
-                {
-                    name: "accY",
-                    units: "m/s2"
-                },
-                {
-                    name: "accZ",
-                    units: "m/s2"
-                }
-            ],
-            values: measurements
+            device_name: settings.device.deviceId,
+            device_type: settings.device.deviceType,
+            interval_ms: sample.intervalMs,
+            sensors: sample.sensors,
+            values: sample.values
         }
     };
 };
@@ -48,11 +37,13 @@ export const helloMessage = (settings: EdgeImpulseSettings) => {
             deviceId: settings.device.deviceId,
             deviceType: settings.device.deviceType,
             connection: "ip",
-            sensors: [{
-                name: "Built-in accelerometer",
-                maxSampleLengthS: 300,
-                frequencies: [62.5]
-            }]
+            sensors: settings.device.sensors.map(s => {
+                return {
+                    name: s.name,
+                    maxSampleLengthS: s.maxSampleLength,
+                    frequencies: s.frequencies
+                }
+            })
         }
     };
 };

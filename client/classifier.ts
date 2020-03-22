@@ -1,6 +1,3 @@
-
-export declare var zip: any;
-
 interface WasmRuntimeModule {
     HEAPU8: {
         buffer: Uint8Array;
@@ -13,6 +10,11 @@ interface WasmRuntimeModule {
             size(): number;
             get(index: number): { label: string, value: number };
         }
+    };
+    get_properties(): {
+        sensor: number;
+        frequency: number;
+        frame_sample_count: number;
     };
     _free(pointer: Uint8Array): void;
     _malloc(bytes: number): number;
@@ -38,6 +40,16 @@ export class EdgeImpulseClassifier {
                 this._initialized = true;
             };
         });
+    }
+
+    getProperties() {
+        const ret = this._module.get_properties();
+
+        return {
+            sensor: ret.sensor === 1 ? 'microphone' : 'accelerometer',
+            frequency: ret.frequency,
+            frameSampleCount: ret.frame_sample_count
+        };
     }
 
     classify(rawData: number[], debug = false) {
