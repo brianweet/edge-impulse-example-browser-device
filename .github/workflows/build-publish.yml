@@ -1,6 +1,9 @@
 name: Publish Static Web App to Azure Blob Storage
 
-on: [push]
+on:
+  push:
+    branches:    
+      - master
 
 jobs:
   build_and_publish:
