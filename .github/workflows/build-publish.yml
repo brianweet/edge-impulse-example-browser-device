@@ -1,0 +1,38 @@
+name: Publish Static Web App to Azure Blob Storage
+
+on: [push]
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v1
+
+    - name: Login to Azure
+      uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install npm packages
+      shell: bash
+      run: |
+        npm install
+
+    - name: Run linter
+      shell: bash
+      run: |
+        npm run lint
+
+    - name: Build app
+      shell: bash
+      run: |
+        npm run build
+
+    - name: Publish app
+      uses: Azure/cli@v1.0.0
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az storage blob upload-batch -s $GITHUB_WORKSPACE/public -d \$web --account-name ${{ secrets.STORAGE_ACCOUNT_NAME }}
