@@ -23,6 +23,8 @@ export const parseMessage = async (event: MessageEvent) => {
     if (event.data instanceof Blob) {
         return await readFile(event.data);
     } else if (typeof event.data === "string") {
+        if (event.data === 'pong') return null;
+
         return JSON.parse(event.data);
     }
     return null;
