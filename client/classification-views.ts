@@ -21,7 +21,8 @@ export class ClassificationClientViews {
         grantPermission: document.querySelector('#grant-permissions-button') as HTMLElement,
         inferencingTimeLeft: document.querySelector('#inferencing-time-left') as HTMLElement,
         inferencingMessage: document.querySelector('#inferencing-recording-data-message') as HTMLElement,
-        inferencingResult: document.querySelector('#inferencing-result') as HTMLElement
+        inferencingResult: document.querySelector('#inferencing-result') as HTMLElement,
+        buildProgress: document.querySelector('#build-progress') as HTMLElement
     };
 
     private _sensors: ISensor[] = [];
@@ -53,6 +54,15 @@ export class ClassificationClientViews {
                 let loader = new ClassificationLoader('https://studio.edgeimpulse.com', getApiKey());
                 loader.on('status', msg => {
                     this._elements.loadingText.textContent = msg;
+                });
+                loader.on('buildProgress', progress => {
+                    if (typeof progress === 'string') {
+                        this._elements.buildProgress.style.display = 'block';
+                        this._elements.buildProgress.textContent = progress || ' ';
+                    }
+                    else {
+                        this._elements.buildProgress.style.display = 'none';
+                    }
                 });
                 try {
                     this._classifier = await loader.load();
@@ -96,6 +106,9 @@ export class ClassificationClientViews {
                     }
 
                     this.switchView(this._views.connectionFailed);
+                }
+                finally {
+                    this._elements.buildProgress.style.display = 'none';
                 }
             })();
         }

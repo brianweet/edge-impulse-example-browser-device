@@ -413,3 +413,9 @@ body {
 #inferencing-result {
     white-space: pre;
 }
+
+#build-progress {
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
